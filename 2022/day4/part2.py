@@ -1,5 +1,5 @@
 def overlap(a, b, c, d):
-    if a >= b and a <= d or b >= c and b <= d:
+    if a and b in range(c, d+1): 
         return True
     return False
 
