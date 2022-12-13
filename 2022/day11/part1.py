@@ -32,10 +32,10 @@ class Monkey:
 
 
 def round(ms: list[Monkey], count: list[int]):
-	for i in range(len(ms)):
-		while ms[i].hasItem():
+	for i, m in enumerate(ms):
+		while m.hasItem():
 			count[i] += 1
-			dest, item = ms[i].play()
+			dest, item = m.play()
 			ms[dest].addItem(item)
 
 
@@ -57,7 +57,5 @@ def part1(file: list[str]):
             max[0]=c
         elif c > max[1]:
             max[1]=c
-
-
 
     print(max[0] * max[1])

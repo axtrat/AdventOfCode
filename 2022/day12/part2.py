@@ -53,17 +53,17 @@ def part2(file: list[str]):
     starts = []
     for i in range(len(file)):
         mapp.append([])
-        for j in range(len(file[i])):
-            mapp[i].append(ord(file[i][j])-ord("a"))
+        for j, c in enumerate(file[i]):
+            mapp[i].append(ord(c)-ord("a"))
 
             if file[i][j] == "a":
                 starts.append((i, j))
 
-            if file[i][j] == "S":
+            if c == "S":
                 start = (i, j)
                 mapp[i][j] = 0
 
-            elif file[i][j] == "E":
+            elif c == "E":
                 goal = (i, j)
                 mapp[i][j] = ord("z")-ord("a")
 
