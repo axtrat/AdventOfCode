@@ -43,10 +43,10 @@ class Game:
             self.__monkeys.append(m)
 
     def round(self):
-        for i in range(len(self.__monkeys)):
-            while self.__monkeys[i].hasItem():
+        for i, m in enumerate(self.__monkeys):
+            while m.hasItem():
                 self.__count[i] += 1
-                dest, item = self.__monkeys[i].play()
+                dest, item = m.play()
                 self.__monkeys[dest].addItem(item % self.__MCM)
 
     def play(self, n: int):
