@@ -12,13 +12,13 @@ class Graph:
     def bfs(self, start, goal):
         visited = set()
         tovisit = [start]
-        came_from = {start: 0}
+        came_from = dict()
 
         while len(tovisit) > 0:
             x = tovisit.pop(0)
 
             if x == goal:
-                return came_from[x]
+                return self.reconstruct_path(came_from,goal)
 
             visited.add(x)
             for y in self.__adjacent[x]:
@@ -28,9 +28,16 @@ class Graph:
                 if y not in tovisit:
                     tovisit.append(y)
 
-                came_from[y] = came_from[x]+1
+                came_from[y] = x
 
-        return 0
+        return []
+    
+    def reconstruct_path(self,came_from,current_node):
+        res = []
+        while current_node in came_from:
+            res.insert(0, current_node)
+            current_node = came_from[current_node]
+        return res
 
 
 def reacble(mapp: list[list[int]], i: int, j: int) -> list[tuple[int, int]]:
@@ -46,6 +53,18 @@ def reacble(mapp: list[list[int]], i: int, j: int) -> list[tuple[int, int]]:
         res.append((i, j-1))
 
     return res
+
+def smart(mapp, path, starts) -> int:
+    pathlen = len(path)
+    min = pathlen
+    for i, node in enumerate(path):
+        if mapp[node[0]][node[1]] == 0:
+            min = pathlen-i
+            if node in starts:
+                starts.remove(node)
+        else:
+            break
+    return min
 
 
 def part2(file: list[str]):
@@ -75,10 +94,12 @@ def part2(file: list[str]):
             for p in reacble(mapp, i, j):
                 g.addEdge((i, j), p)
 
-    min = g.bfs(start, goal)
-    for start in starts:
-        other = g.bfs(start, goal)
-        if other != 0 and other < min:
-            min = other
+    
+    min = smart(mapp, g.bfs(start, goal), starts)
+    while len(starts) > 0:
+        start = starts.pop()
+        pathlen = smart(mapp, g.bfs(start, goal), starts)
+        if pathlen != 0 and pathlen < min:
+            min = pathlen
 
     print(min)
