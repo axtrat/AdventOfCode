@@ -1,8 +1,10 @@
 from time import time
 
 class Timer:
-    # inizializza o reinposta il timer
-    def start(self):
+    def __init__(self) -> None:
+        self.__start = time()
+    
+    def restart(self):
         self.__start = time()
     
     def __str__(self) -> str:
