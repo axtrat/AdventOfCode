@@ -12,20 +12,42 @@ def printMap(mapp, depth):
                 print(end=".")
         print()
 
-def sandFall(mapp, s, depth) -> bool:
-    while (s[0], s[1]) not  in mapp:
-        s[0]+=1
-        if s[0] > depth:
+def sandFallss(rocks, maxRow):
+    i, s = 0, [0, 500]
+    while not sandFall(rocks, s, maxRow):
+        i, s = i+1, [0, 500]
+    return i
+
+def sandFalls(rocks, maxRow):
+    path = dict()
+    i, sand = 0, [0, 500]
+    while True:
+        i+=1
+        sandFall(rocks, path, sand, maxRow)
+        if tuple(sand) not in path:
+            break
+        prev = path[tuple(sand)]
+        sand[0], sand[1] = prev[0], prev[1]
+    return i
+
+def sandFall(rocks, path, sand, maxRow):
+    while True:
+        prev = tuple(sand)
+        
+        sand[0] += 1
+        if sand[0] > maxRow:
             return True
+        if tuple(sand) in rocks:
+            if (sand[0], sand[1]-1) not in rocks:
+                sand[1] -= 1
+            elif (sand[0], sand[1]+1) not in rocks:
+                sand[1] += 1
+            else:
+                sand[0] -= 1
+                rocks[prev] = "o"
+                return False
             
-    if (s[0], s[1]-1) not in mapp:
-        s[1] -=1
-        return sandFall(mapp, s, depth)
-    elif(s[0], s[1]+1) not in mapp:
-        s[1] += 1
-        return sandFall(mapp, s, depth)
-    
-    s[0]-=1
+        path[tuple(sand)] = prev
 
 def draw(mapp, p1, p2):
     for i in range(p1[1], p2[1]+1):
@@ -46,12 +68,6 @@ def part2(file: list[str]):
     depth += 2
     r = 500 + (depth+1 // 2)
     l = 500 - (depth+1 // 2)
-
     draw(mapp, (l, depth), (r, depth))
     
-    i, s = 0, [0, 500]
-    while not sandFall(mapp, s, depth):
-        mapp[(s[0],s[1])] = "o"
-        i, s = i+1, [0, 500]
-    
-    print(i)
+    print(sandFalls(mapp, depth))
