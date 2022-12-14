@@ -1,68 +1,51 @@
-def printMap(mapp):
-    for i, row in enumerate(mapp):
+def printMap(mapp, depth):
+    _, x = zip(*mapp)
+    minx, maxx = min(x), max(x)
+
+
+    for i in range(depth+1):
         print("%3d"%i, end=" ")
-        for c in row:
-            print(c, end="")
+        for j in range(minx, maxx+1):
+            if (i, j) in mapp:
+                print(mapp[(i, j)], end="")
+            else:
+                print(end=".")
         print()
 
-def dropp(mapp, s) -> bool:
-    while mapp[s[1]][s[0]] == ".":
-        s[1]+=1
-        if s[1] >= len(mapp):
+def sandFall(mapp, s, depth) -> bool:
+    while (s[0], s[1]) not  in mapp:
+        s[0]+=1
+        if s[0] > depth:
             return True
-
-    if s[0]-1 < 0 or s[0]+1 >= len(mapp[s[1]]):
-        return True
-
-    if mapp[s[1]][s[0]-1] == ".":
-        s[0] = s[0]-1
-        return dropp(mapp, s)
-    elif mapp[s[1]][s[0]+1] == ".":
-        s[0] = s[0]+1
-        return dropp(mapp, s)
-    s[1]-=1
-
-
-def expandMap(mapp, t, l, r, minx, maxx):
-    if t >= len(mapp):
-        for _ in range(len(mapp), t+1):
-            mapp.append([])
-
-    if r >= maxx:
-        maxx = r
+            
+    if (s[0], s[1]-1) not in mapp:
+        s[1] -=1
+        return sandFall(mapp, s, depth)
+    elif(s[0], s[1]+1) not in mapp:
+        s[1] += 1
+        return sandFall(mapp, s, depth)
     
-    for i in range(len(mapp)):
-        if maxx-minx >= len(mapp[i]) :
-            for _ in range(len(mapp[i]), maxx+1-minx):
-                mapp[i].append(".")
-        if l < minx:
-            for _ in range(l, minx):
-                mapp[i].insert(0, ".")
-    
-    if l < minx:
-        minx = l
-    
-    return minx, maxx
+    s[0]-=1
 
-def draw(mapp, p1, p2, minx):
+def draw(mapp, p1, p2):
     for i in range(p1[1], p2[1]+1):
-        for j in range(p1[0]-minx, p2[0]+1-minx):
-            mapp[i][j] = "#"
+        for j in range(p1[0], p2[0]+1):
+            mapp[(i,j)] = "#"
 
 def part1(file: list[str]):
-    mapp = list()
-    minx, maxx = 500, 0
+    mapp = dict()
+    depth = 0
     for line in file:
         points = [[int(x) for x in ps.split(",")] for ps in line.split(" -> ")]
 
         for i in range(1, len(points)):
             p1, p2 = sorted(points[i-1:i+1])
-            minx, maxx = expandMap(mapp, p2[1], p1[0], p2[0], minx, maxx)
-            draw(mapp, p1, p2, minx)
-    
-    i, s = 0, [500-minx, 0]
-    while not dropp(mapp, s):
-        mapp[s[1]][s[0]] = "o"
-        i, s = i+1, [500-minx, 0]
+            depth = max(p2[1], depth)
+            draw(mapp, p1, p2)
+
+    i, s = 0, [0, 500]
+    while not sandFall(mapp, s, depth):
+        mapp[(s[0],s[1])] = "o"
+        i, s = i+1, [0, 500]
     
     print(i)
