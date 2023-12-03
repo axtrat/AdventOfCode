@@ -60,32 +60,61 @@ func Part1(file []string) {
 					nPart.number = nPart.number*10 + int(line[j]-'0')
 				}
 				parts = append(parts, nPart)
-
-				//fmt.Println(nPart)
 			}
 			if j == len(line) || line[j] == '.' {
 				continue
 			}
+
 			simbles = append(simbles, Point{j, i})
 		}
 	}
 
 	for _, part := range parts {
-		var out = true
 		for _, simble := range simbles {
 			if part.isAdiacent(simble) {
 				sum += part.number
-				out = false
 				break
 			}
-		}
-		if out {
-			//fmt.Println(part)
 		}
 	}
 	fmt.Println(sum)
 }
 
 func Part2(file []string) {
-	fmt.Println("Non Implementata")
+	var (
+		sum     int
+		parts   []Part  = make([]Part, 0)
+		simbles []Point = make([]Point, 0)
+	)
+	for i, line := range file {
+		for j := 0; j < len(line); j++ {
+			if unicode.IsDigit(rune(line[j])) {
+				var nPart = Part{int(line[j] - '0'), Point{j, i}, 1}
+
+				for j++; j < len(line) && unicode.IsDigit(rune(line[j])); j++ {
+					nPart.len = 1 + j - nPart.start.x
+					nPart.number = nPart.number*10 + int(line[j]-'0')
+				}
+				parts = append(parts, nPart)
+			}
+			if j < len(line) && line[j] == '*' {
+				simbles = append(simbles, Point{j, i})
+			}
+
+		}
+	}
+
+	for _, simble := range simbles {
+		var count, gear int = 0, 1
+		for _, part := range parts {
+			if part.isAdiacent(simble) {
+				count++
+				gear *= part.number
+			}
+		}
+		if count == 2 {
+			sum += gear
+		}
+	}
+	fmt.Println(sum)
 }
