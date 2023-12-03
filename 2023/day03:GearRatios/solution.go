@@ -47,27 +47,10 @@ func (this Part) String() string {
 func Part1(file []string) {
 	var (
 		sum     int
-		parts   []Part  = make([]Part, 0)
-		simbles []Point = make([]Point, 0)
+		parts   []Part
+		simbles []Point
 	)
-	for i, line := range file {
-		for j := 0; j < len(line); j++ {
-			if unicode.IsDigit(rune(line[j])) {
-				var nPart = Part{int(line[j] - '0'), Point{j, i}, 1}
-
-				for j++; j < len(line) && unicode.IsDigit(rune(line[j])); j++ {
-					nPart.len = 1 + j - nPart.start.x
-					nPart.number = nPart.number*10 + int(line[j]-'0')
-				}
-				parts = append(parts, nPart)
-			}
-			if j == len(line) || line[j] == '.' {
-				continue
-			}
-
-			simbles = append(simbles, Point{j, i})
-		}
-	}
+	parts, simbles = parseInput(file, func(r rune) bool { return r != '.' })
 
 	for _, part := range parts {
 		for _, simble := range simbles {
@@ -83,26 +66,10 @@ func Part1(file []string) {
 func Part2(file []string) {
 	var (
 		sum     int
-		parts   []Part  = make([]Part, 0)
-		simbles []Point = make([]Point, 0)
+		parts   []Part
+		simbles []Point
 	)
-	for i, line := range file {
-		for j := 0; j < len(line); j++ {
-			if unicode.IsDigit(rune(line[j])) {
-				var nPart = Part{int(line[j] - '0'), Point{j, i}, 1}
-
-				for j++; j < len(line) && unicode.IsDigit(rune(line[j])); j++ {
-					nPart.len = 1 + j - nPart.start.x
-					nPart.number = nPart.number*10 + int(line[j]-'0')
-				}
-				parts = append(parts, nPart)
-			}
-			if j < len(line) && line[j] == '*' {
-				simbles = append(simbles, Point{j, i})
-			}
-
-		}
-	}
+	parts, simbles = parseInput(file, func(r rune) bool { return r == '*' })
 
 	for _, simble := range simbles {
 		var count, gear int = 0, 1
@@ -117,4 +84,30 @@ func Part2(file []string) {
 		}
 	}
 	fmt.Println(sum)
+}
+
+func parseInput(file []string, filtro func(rune) bool) ([]Part, []Point) {
+	var (
+		parts   []Part  = make([]Part, 0)
+		simbles []Point = make([]Point, 0)
+	)
+
+	for i, line := range file {
+		for j := 0; j < len(line); j++ {
+			if unicode.IsDigit(rune(line[j])) {
+				var nPart = Part{int(line[j] - '0'), Point{j, i}, 1}
+
+				for j++; j < len(line) && unicode.IsDigit(rune(line[j])); j++ {
+					nPart.len = 1 + j - nPart.start.x
+					nPart.number = nPart.number*10 + int(line[j]-'0')
+				}
+				parts = append(parts, nPart)
+			}
+			if j < len(line) && filtro(rune(line[j])) {
+				simbles = append(simbles, Point{j, i})
+			}
+
+		}
+	}
+	return parts, simbles
 }
