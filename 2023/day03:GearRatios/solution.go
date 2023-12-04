@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"unicode"
+	"regexp"
+	"strconv"
 )
 
 type Point struct {
@@ -92,21 +93,17 @@ func parseInput(file []string, filtro func(rune) bool) ([]Part, []Point) {
 		simbles []Point = make([]Point, 0)
 	)
 
+	re := regexp.MustCompile("\\d+|[^.]")
 	for i, line := range file {
-		for j := 0; j < len(line); j++ {
-			if unicode.IsDigit(rune(line[j])) {
-				var nPart = Part{int(line[j] - '0'), Point{j, i}, 1}
-
-				for j++; j < len(line) && unicode.IsDigit(rune(line[j])); j++ {
-					nPart.len = 1 + j - nPart.start.x
-					nPart.number = nPart.number*10 + int(line[j]-'0')
-				}
-				parts = append(parts, nPart)
-			}
-			if j < len(line) && filtro(rune(line[j])) {
-				simbles = append(simbles, Point{j, i})
+		for _, match := range re.FindAllStringIndex(line, -1) {
+			n, err := strconv.Atoi(line[match[0]:match[1]])
+			if err != nil {
+				simbles = append(simbles, Point{match[0], i})
+				continue
 			}
 
+			var nPart = Part{n, Point{match[0], i}, match[1] - match[0]}
+			parts = append(parts, nPart)
 		}
 	}
 	return parts, simbles

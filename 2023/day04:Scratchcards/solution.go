@@ -42,7 +42,7 @@ func Part2(file []string) {
 				count++
 			}
 		}
-		//fmt.Printf("Sono %d ho vinto %d carte ed ho %d copie\n", i+1, count, listOfCopies[i])
+
 		res += listOfCopies[i]
 		for j := 1; j <= count; j++ {
 			listOfCopies[i+j] += listOfCopies[i]
