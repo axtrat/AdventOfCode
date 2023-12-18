@@ -35,14 +35,13 @@ func newRanges(file []string, index int, ranges []Range) ([]Range, int) {
 			break
 		}
 
-		mR := Range{line[1], line[1] + line[2]}
+		mR := newRange(line[1], line[2])
 		old := make([]Range, 0)
 		for _, r := range ranges {
-			in, out1, out2 := r.Intersect(mR)
+			in := r.Intersect(mR)
+			out1, out2 := r.Complementary(mR)
 			if !in.IsEmpty() {
-				in.start += (line[0] - line[1])
-				in.finish += (line[0] - line[1])
-				res = append(res, in)
+				res = append(res, in.Shift(line[0]-line[1]))
 			}
 			if !out1.IsEmpty() {
 				old = append(old, out1)
@@ -66,7 +65,7 @@ func Part1(file []string) {
 	)
 
 	seeds := MapStringToInt(re.FindAllString(file[0], -1))
-	ranges = Map(seeds, func(i int) Range { return Range{i, i + 1} })
+	ranges = Map(seeds, func(i int) Range { return newRange(i, 1) })
 
 	for index < len(file) {
 		ranges, index = newRanges(file, index, ranges)
@@ -85,7 +84,7 @@ func Part2(file []string) {
 
 	seeds := MapStringToInt(re.FindAllString(file[0], -1))
 	for i := 0; i < len(seeds); i += 2 {
-		ranges = append(ranges, Range{seeds[i], seeds[i] + seeds[i+1]})
+		ranges = append(ranges, newRange(seeds[i], seeds[i+1]))
 	}
 
 	for index < len(file) {

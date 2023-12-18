@@ -6,6 +6,10 @@ type Range struct {
 	start, finish int
 }
 
+func newRange(start, len int) Range {
+	return Range{start, start + len}
+}
+
 func (r Range) IsEmpty() bool {
 	return r.finish <= r.start
 }
@@ -14,30 +18,23 @@ func (r Range) Len() int {
 	return r.finish - r.start
 }
 
-func (r Range) Intersect(o Range) (in, out1, out2 Range) {
+func (r Range) Intersect(o Range) Range {
+	return Range{max(r.start, o.start), min(r.finish, o.finish)}
+}
 
-	if o.start <= r.start {
-		if r.finish <= o.finish {
-			return r, Range{0, 0}, Range{0, 0}
-		}
-		if r.start < o.finish {
-			return Range{r.start, o.finish}, Range{o.finish, r.finish}, Range{0, 0}
-		}
-	} else {
-		if o.start < r.finish {
-			if o.finish < r.finish {
-				return o, Range{r.start, o.start}, Range{o.finish, r.finish}
-			}
-
-			return Range{o.start, r.finish}, Range{r.start, o.start}, Range{0, 0}
-		}
+func (r Range) Complementary(o Range) (Range, Range) {
+	if r.start >= o.finish || r.finish <= o.start {
+		return r, Range{}
 	}
+	return Range{r.start, o.start}, Range{o.finish, r.finish}
+}
 
-	return Range{0, 0}, r, Range{0, 0}
+func (r Range) Shift(n int) Range {
+	return Range{r.start + n, r.finish + n}
 }
 
 func (r Range) String() string {
-	if r.Len() == 0 {
+	if r.IsEmpty() {
 		return "[]"
 	}
 	if r.Len() == 1 {
