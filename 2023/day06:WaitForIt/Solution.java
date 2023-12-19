@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Solution
@@ -26,29 +27,37 @@ public class Solution {
         System.out.println(timer);
     }
 
-    private static List<Integer> getInts(String line) {
-        Pattern pattern = Pattern.compile("\\d+");
-        return pattern.matcher(line).results().map((match) -> Integer.parseInt(match.group())).toList();
+    private static Stream<String> getAll(String line, Pattern pattern) {
+        return pattern.matcher(line).results().map((match) -> match.group());
+    }
+
+    private static int conutWays(long time, long dinstance) {
+        int count = 0;
+        for (int j = 1; j <= time; j++) {
+            if ((time-j) * j > dinstance) count++;
+        }
+        return count;
     }
 
     private static void part1(List<String> file) {
-        var times = getInts(file.get(0));
-        var dinstances = getInts(file.get(1));
+        Pattern pattern = Pattern.compile("\\d+");
+        List<Integer> times = getAll(file.get(0), pattern).map(Integer::parseInt).toList();
+        List<Integer> dinstances = getAll(file.get(1), pattern).map(Integer::parseInt).toList();
+
         int res = 1;
-        for (int i = 0; i < times.size(); i++) {
-            int count = 0;
-            int time = times.get(i), dinstance = dinstances.get(i);
-            for (int j = 1; j <= time; j++) {
-                int speed = (time-j) * j;
-                if (speed > dinstance) count++;
-            }
-            res *= count;
-        }
+        for (int i = 0; i < times.size(); i++) 
+            res *= conutWays(times.get(i), dinstances.get(i));
+        
         System.out.println(res);
     }
 
     private static void part2(List<String> file) {
-        System.out.println("Not implemented yet");
-    }
+        Pattern pattern = Pattern.compile("\\d+");
+        long time = Long.parseLong(getAll(file.get(0), pattern).reduce((a, b) -> a+b).get());
+        long dinstance = Long.parseLong(getAll(file.get(1), pattern).reduce((a, b) -> a+b).get());
 
+        int count = conutWays(time, dinstance);
+        
+        System.out.println(count); 
+    }
 }
