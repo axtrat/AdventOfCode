@@ -1,5 +1,6 @@
 import re
 import sys
+from collections import Counter
 
 
 def part1(file: list[str]):
@@ -17,21 +18,7 @@ def part1(file: list[str]):
 
 def part1(file: list[str]):
     l1, l2 = zip(*(re.split("\s+", line) for line in file))
-    l1, l2 = list(l1), list(l2)
-
-    dict1 = {}
-    for num in l1:
-        if num in dict1:
-            dict1[num] += 1
-        else:
-            dict1[num] = 1
-
-    dict2 = {}
-    for num in l2:
-        if num in dict2:
-            dict2[num] += 1
-        else:
-            dict2[num] = 1
+    dict1, dict2 = Counter(l1), Counter(l2)
 
     sum = 0
     for key in dict1:
