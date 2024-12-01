@@ -5,27 +5,19 @@ from collections import Counter
 
 def part1(file: list[str]):
     l1, l2 = zip(*(re.split("\s+", line) for line in file))
-    l1, l2 = list(l1), list(l2)
+    l1, l2 = sorted(l1), sorted(l2)
 
-    l1.sort()
-    l2.sort()
-
-    sum = 0
-    for i in range(len(l1)):
-        sum += abs(int(l1[i]) - int(l2[i]))
+    res = sum([abs(int(l1[i]) - int(l2[i])) for i in range(len(l1))])
     
-    print(sum)
+    print(res)
 
-def part1(file: list[str]):
+def part2(file: list[str]):
     l1, l2 = zip(*(re.split("\s+", line) for line in file))
-    dict1, dict2 = Counter(l1), Counter(l2)
+    dict2 = Counter(l2)
 
-    sum = 0
-    for key in dict1:
-        if key in dict2:
-            sum += abs(int(key) * dict1[key] * dict2[key])
+    res = sum(int(num) * dict2[num] for num in l1 if num in dict2)
 
-    print(sum)
+    print(res)
     
 
 def main():
@@ -36,6 +28,7 @@ def main():
     
     
     part1(lines)
+    part2(lines)
 
 
 if __name__ == "__main__":
