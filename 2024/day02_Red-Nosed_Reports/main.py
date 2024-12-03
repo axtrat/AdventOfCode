@@ -29,16 +29,9 @@ def part2(file: list[str]):
     res = len(list(filter(isSafe2, reports)))
     print(res)
 
-def main():
-    filename = sys.argv[1]+".txt"
 
-    with open(filename, "r") as file:
-        lines = [line.rstrip("\n") for line in file]
-    
-    
-    part1(lines)
-    part2(lines)
+with open(sys.argv[1]+".txt", "r") as file:
+    lines = [line.rstrip("\n") for line in file]
 
-
-if __name__ == "__main__":
-    main()
+part1(lines)
+part2(lines)
