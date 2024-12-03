@@ -18,24 +18,30 @@ fn part1(file: &String) {
 }
 
 fn part2(file: &String) {
-    let pattern = Regex::new(r"(do\(\)|don't\(\))|mul\((\d+),(\d+)\)").unwrap();
+    let pattern = Regex::new(r"(do(?:n't)?\(\))|mul\((\d+),(\d+)\)").unwrap();
     
     let mut enable = true;
-    let mut res = 0;
-    for cap in pattern.captures_iter(file) {
-        match cap.get(1).map(|m| m.as_str()) {
-            Some("do()") => enable = true,
-            Some("don't()") => enable = false,
-            _ => match (cap.get(2).map(|m| m.as_str()), cap.get(3).map(|m| m.as_str())) {
-                (Some(a), Some(b)) => {
-                    if enable {
-                        res += a.parse::<i32>().unwrap() * b.parse::<i32>().unwrap();
-                    }
+    let res = pattern
+        .captures_iter(file)
+        .map(|cap| {
+            match cap.get(1).map(|m| m.as_str()) {
+                Some("do()") => {
+                    enable = true;
+                    0
                 }
-                _ => (),
-            },      
-        }
-    }
+                Some("don't()") => {
+                    enable = false;
+                    0
+                }
+                _ => if enable {
+                    let a = cap[2].parse::<i32>().unwrap();
+                    let b = cap[3].parse::<i32>().unwrap();
+                    a * b
+                } else { 0 },      
+            }
+        })
+        .sum::<i32>();
+            
     println!("{}", res);
 }
     
