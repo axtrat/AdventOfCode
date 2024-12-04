@@ -1,49 +1,42 @@
 use std::io::stdin;
 use std::cmp::min;
 
-fn find(file: &Vec<Vec<char>>) -> i32{
-    let mut sum = 0;
-    let mut buffer: String = String::new();
-    for line in file {
-        for char in line {
-            buffer.push(*char);
-            if buffer.len() == 4 {
-                if buffer == "XMAS" {
-                    sum += 1
-                }
-                buffer.remove(0);
-            }
-        }
-        buffer.clear()
+fn update_buffer(buffer: &mut String, char: char, n: usize) {
+    buffer.push(char);
+    if buffer.len() > n {
+        buffer.remove(0);
     }
-    sum
 }
 
-fn find_on_diagonals(file: &Vec<Vec<char>>) -> i32 {
-    let mut sum = 0;
+fn find(file: &Vec<Vec<char>>) -> i32{
     let mut buffer: String = String::new();
     let (n, m) = (file.len(), file[0].len());
-    for i in 0..m {
+
+    let mut sum = file
+        .iter()
+        .map(|line| {
+            line.iter()
+                .collect::<String>()
+                .matches("XMAS")
+                .count() as i32
+        })
+        .sum::<i32>();
+
+    for i in 0..m-3 {
         for j in 0..min(n, m-i) {
-            buffer.push(file[j][j+i]);
-            if buffer.len() == 4 {
-                if buffer == "XMAS" {
-                    sum += 1
-                }
-                buffer.remove(0);
+            update_buffer(&mut buffer, file[j][j+i], 4);
+            if buffer == "XMAS" {
+                sum += 1
             }
         }
         buffer.clear()
     } 
 
-    for i in 1..n {
+    for i in 1..n-3 {
         for j in 0..min(n-i, m) {
-            buffer.push(file[j+i][j]);
-            if buffer.len() == 4 {
-                if buffer == "XMAS" {
-                    sum += 1
-                }
-                buffer.remove(0);
+            update_buffer(&mut buffer, file[j+i][j], 4);
+            if buffer == "XMAS" {
+                sum += 1
             }
         }
         buffer.clear()
@@ -62,14 +55,32 @@ fn rotate_matrix(matrix: &Vec<Vec<char>>) -> Vec<Vec<char>> {
     new_matrix
 }
 
-fn _print_matrix(matrix: &Vec<Vec<char>>) {
-    for line in matrix {
-        for char in line {
-            print!("{char} ");
+fn find2(file: &Vec<Vec<char>>) -> i32 {
+    let mut sum = 0;
+    let mut buffer: String = String::new();
+    let (n, m) = (file.len(), file[0].len());
+
+    for i in 0..m-3 {
+        for j in 0..min(n, m-i) {
+            update_buffer(&mut buffer, file[j][j+i], 3);
+            if (buffer == "MAS" || buffer == "SAM") && ((file[j-2][j+i] == 'M' && file[j][j+i-2] == 'S') || (file[j-2][j+i] == 'S' && file[j][j+i-2] == 'M')) {
+                sum += 1
+            }
         }
-        println!();
-    }
-    println!();
+        buffer.clear()
+    } 
+
+    for i in 1..n-3 {
+        for j in 0..min(n-i, m) {
+            update_buffer(&mut buffer, file[j+i][j], 3);
+            if (buffer == "MAS" || buffer == "SAM") && ((file[j+i-2][j] == 'M' && file[j+i][j-2] == 'S') || (file[j+i-2][j] == 'S' && file[j+i][j-2] == 'M')) {
+                sum += 1
+            }
+        }
+        buffer.clear()
+    }       
+
+    sum
 }
 
 fn part1(file: &Vec<Vec<char>>) {
@@ -77,9 +88,17 @@ fn part1(file: &Vec<Vec<char>>) {
     let mut matrix = file.clone();
     for _ in 0..4 {
         sum += find(&matrix);
-        sum += find_on_diagonals(&matrix);
         matrix = rotate_matrix(&matrix);
     }
+
+    println!("{}", sum);
+}
+
+fn part2(file: &Vec<Vec<char>>) {
+    let mut sum = 0;
+    
+    sum += find2(&file);
+       
 
     println!("{}", sum);
 }
@@ -99,5 +118,6 @@ fn main() {
         }
     }
 
-    part1(&file)
+    part1(&file);
+    part2(&file);
 }
