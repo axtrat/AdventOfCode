@@ -23,21 +23,15 @@ fn part2(file: &String) {
     let mut enable = true;
     let res = pattern
         .captures_iter(file)
-        .map(|cap| {
+        .filter_map(|cap| {
             match cap.get(1).map(|m| m.as_str()) {
-                Some("do()") => {
-                    enable = true;
-                    0
-                }
-                Some("don't()") => {
-                    enable = false;
-                    0
-                }
+                Some("do()") => {enable = true; None},
+                Some("don't()") => {enable = false; None}
                 _ => if enable {
                     let a = cap[2].parse::<i32>().unwrap();
                     let b = cap[3].parse::<i32>().unwrap();
-                    a * b
-                } else { 0 },      
+                    Some(a * b)
+                } else { None} ,      
             }
         })
         .sum::<i32>();
