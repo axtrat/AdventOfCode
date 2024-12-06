@@ -97,12 +97,15 @@ fn main() {
     
     let mut visited = HashSet::new();
     let mut loops = HashSet::new();
+    let mut notloops = HashSet::new();
 
     loop {
         visited.insert(guard.position());
 
-        if find_loop(&data, &guard) {
+        if !notloops.contains(&guard.next()) && find_loop(&data, &guard) {
             loops.insert(guard.next());
+        } else {
+            notloops.insert(guard.next());
         }
 
         let (x, y) = guard.next();
@@ -115,6 +118,6 @@ fn main() {
     }
 
     println!("Part 1: {}", visited.len());
-
+    
     println!("Part 2: {}", loops.len());
 }
