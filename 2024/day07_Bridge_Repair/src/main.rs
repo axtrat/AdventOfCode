@@ -12,31 +12,19 @@ fn test(res: &u64, numbers: &[u64], part2: bool) -> bool {
         return *res == numbers[0];
     }
 
-    let num = numbers.last().unwrap();
+    let num = numbers[numbers.len() - 1];
     let numbers = &numbers[..numbers.len() - 1];
 
-    
-    if res < num {
+    if *res < num {
         return false;
-    } 
-
-    if part2 && res.to_string().ends_with(&num.to_string()) {
-        let str = res.to_string();
-        let str: String = str[..str.len()-num.to_string().len()].to_string();
-        if str.parse::<u64>().is_ok_and(|x| test(&x, numbers, true)) {
-            return true;
-        }
     }
+    
+    let pow: u64  =10_u64.pow(format!("{num}").len() as u32);
 
-
-    if res % num == 0 {
-        test(&(res / num), &numbers, part2) || 
-        test(&(res - num), &numbers, part2)
-    } else {
-        test(&(res - num), &numbers, part2)
-    }
+    part2 && res % pow == num && test(&(res / pow), numbers, true)
+        ||   res % num == 0   && test(&(res / num), &numbers, part2)
+        ||   test(&(res - num), &numbers, part2)
 }
-
 
 fn part1(res: &Vec<u64>, numbers: &Vec<Vec<u64>>) {
     let mut sum = 0;
@@ -54,7 +42,6 @@ fn part2(res: &Vec<u64>, numbers: &Vec<Vec<u64>>) {
         if test(&res, &numbers[i], true) {
             sum += res;
         }
-        
     }
     println!("Part 1: {}", sum);
 }
