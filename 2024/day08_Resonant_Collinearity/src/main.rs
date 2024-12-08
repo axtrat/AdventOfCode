@@ -53,6 +53,31 @@ fn part1(antennas: &HashMap<char, Vec<Point>>, rows: i32, cols: i32) {
     println!("{}", antinodes.len());
 }
 
+fn part2(antennas: &HashMap<char, Vec<Point>>, rows: i32, cols: i32) {
+    let mut antinodes = HashSet::new();
+    for (_, antennas) in antennas {
+        for i in 0..antennas.len() {
+            for j in i+1..antennas.len() {
+                let p1 = antennas[i];
+                let p2 = antennas[j];
+
+                let delta = p2 - p1;
+                let mut node = p2;
+                while (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
+                    antinodes.insert(node.clone());
+                    node = node + delta;
+                }
+                node = p1;
+                while (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
+                    antinodes.insert(node.clone());
+                    node = node - delta;
+                }
+            }
+        }
+    }
+    println!("{}", antinodes.len());
+}
+
 fn read_lines() -> Vec<String> {
     let path = args().nth(1).expect("No args given");
     let file = read_to_string(path).expect("Failed to read file");
@@ -71,4 +96,5 @@ fn main() {
     }
 
     part1(&antennas, file.len() as i32, file[0].len() as i32);
+    part2(&antennas, file.len() as i32, file[0].len() as i32);
 }
