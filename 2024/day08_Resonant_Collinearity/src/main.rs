@@ -31,21 +31,26 @@ impl Sub for Point {
     }
 }
 
+fn combinations<T>(v: &Vec<T>) -> Vec<(T, T)> where T: Copy {
+    let mut result = Vec::new();
+    for i in 0..v.len() {
+        for j in i+1..v.len() {
+            result.push((v[i], v[j]));
+        }
+    }
+    result
+}
+
 fn part1(antennas: &HashMap<char, Vec<Point>>, rows: i32, cols: i32) {
     let mut antinodes = HashSet::new();
     for (_, antennas) in antennas {
-        for i in 0..antennas.len() {
-            for j in i+1..antennas.len() {
-                let p1 = antennas[i];
-                let p2 = antennas[j];
+        for (p1, p2) in combinations(antennas) {
+            let delta = p2 - p1;
+            let nodes = [p2 + delta, p1 - delta];
 
-                let delta = p2 - p1;
-                let nodes = [p2 + delta, p1 - delta];
-
-                for node in nodes {
-                    if (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
-                        antinodes.insert(node);
-                    }
+            for node in nodes {
+                if (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
+                    antinodes.insert(node);
                 }
             }
         }
@@ -56,22 +61,19 @@ fn part1(antennas: &HashMap<char, Vec<Point>>, rows: i32, cols: i32) {
 fn part2(antennas: &HashMap<char, Vec<Point>>, rows: i32, cols: i32) {
     let mut antinodes = HashSet::new();
     for (_, antennas) in antennas {
-        for i in 0..antennas.len() {
-            for j in i+1..antennas.len() {
-                let p1 = antennas[i];
-                let p2 = antennas[j];
+        for (p1, p2) in combinations(antennas) {
+            let delta = p2 - p1;
+            let mut node = p2;
 
-                let delta = p2 - p1;
-                let mut node = p2;
-                while (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
-                    antinodes.insert(node.clone());
-                    node = node + delta;
-                }
-                node = p1;
-                while (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
-                    antinodes.insert(node.clone());
-                    node = node - delta;
-                }
+            while (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
+                antinodes.insert(node.clone());
+                node = node + delta;
+            }
+
+            node = p1;
+            while (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
+                antinodes.insert(node.clone());
+                node = node - delta;
             }
         }
     }
