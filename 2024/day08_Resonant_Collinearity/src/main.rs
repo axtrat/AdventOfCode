@@ -1,22 +1,49 @@
 use std::collections::{HashMap, HashSet};
 use std::env::args;
 use std::fs::read_to_string;
+use std::ops::{Add, Sub};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct Point {
+    x: i32,
+    y: i32,
+}
 
+impl Add for Point {
+    type Output = Self;
 
-fn part1(antennas: &HashMap<char, Vec<(usize, usize)>>, rows: usize, cols: usize) {
-    let mut antinodes =  HashSet::new();
+    fn add(self, other: Self) -> Self::Output {
+        Point {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl Sub for Point {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Point {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+fn part1(antennas: &HashMap<char, Vec<Point>>, rows: i32, cols: i32) {
+    let mut antinodes = HashSet::new();
     for (_, antennas) in antennas {
         for i in 0..antennas.len() {
             for j in i+1..antennas.len() {
-                let (x1, y1) = antennas[i];
-                let (x2, y2) = antennas[j];
+                let p1 = antennas[i];
+                let p2 = antennas[j];
 
-                let (dx, dy) = (x2 as isize - x1 as isize, y2 as isize - y1 as isize);
-                let nodes = [(x2 as isize +dx, y2 as isize+dy), (x1 as isize-dx, y1 as isize-dy)];
+                let delta = p2 - p1;
+                let nodes = [p2 + delta, p1 - delta];
 
                 for node in nodes {
-                    if 0 <= node.0 && node.0 < rows as isize && 0<= node.1 && node.1 < cols as isize {
+                    if (0..rows).contains(&node.x) && (0..cols).contains(&node.y) {
                         antinodes.insert(node);
                     }
                 }
@@ -34,14 +61,14 @@ fn read_lines() -> Vec<String> {
 
 fn main() {
     let file = read_lines();
-    let mut antennas: HashMap<char, Vec<(usize, usize)>> = HashMap::new();
+    let mut antennas: HashMap<char, Vec<Point>> = HashMap::new();
     for (i, line) in file.iter().enumerate() {
         for (j, c) in line.chars().enumerate() {
             if c != '.' {
-                antennas.entry(c).or_insert(Vec::new()).push((i, j));
+                antennas.entry(c).or_insert(Vec::new()).push(Point { x: i as i32, y: j as i32 });
             }
         }
     }
 
-    part1(&antennas, file.len(), file[0].len());
+    part1(&antennas, file.len() as i32, file[0].len() as i32);
 }
