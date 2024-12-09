@@ -15,16 +15,14 @@ fn read_lines() -> Vec<String> {
 
 fn part1(data: &Vec<u64>) {
     let mut mem: Vec<Option<u64>> = Vec::new();
-    let mut is_file = true;
     for (id, size) in data.iter().enumerate() {
         for _ in 0..*size {
-            if is_file {
+            if id % 2 == 0 {
                 mem.push(Some(id as u64/2));
             } else {
                 mem.push(None);
             }
         }
-        is_file = !is_file;
     }
     
     let (mut i, mut j) = (0, mem.len()-1);
@@ -43,13 +41,6 @@ fn part1(data: &Vec<u64>) {
     println!("{:?}", sum);
 }
 
-fn print_mem(mem: &Vec<File>) {
-    for file in mem.iter() {
-        print!("{}{}", format!("{:x}", file.id).repeat(file.size as usize), ".".repeat(file.free_space as usize));
-    }
-    print!("\n");
-}
-
 fn part2(data: &Vec<u64>) {
     let mut mem: Vec<File> = Vec::new();
     for i in (0..data.len()).step_by(2) {
@@ -61,10 +52,13 @@ fn part2(data: &Vec<u64>) {
     }
 
     let mut j = mem.len()-1;
+    let mut i = 0;
     loop {
-        //print_mem(&mem);
-        for k in 0..j {
-            //println!("{}: {} -> {}: {}",j, mem[j].size, k, mem[k].free_space);
+        while i < j && mem[i].free_space == 0 {
+            i+=1;
+            
+        }
+        for k in i..j {
             if mem[k].free_space >= mem[j].size {
                 mem[j-1].free_space += mem[j].size+mem[j].free_space;
                 mem[j].free_space = mem[k].free_space - mem[j].size;
