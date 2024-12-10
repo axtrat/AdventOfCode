@@ -1,36 +1,8 @@
-use std::cell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::env::args;
 use std::fs::read_to_string;
-use std::ops::{Add, Sub};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-impl Add for Point {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self::Output {
-        Point {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl Sub for Point {
-    type Output = Self;
-
-    fn sub(self, other: Self) -> Self::Output {
-        Point {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
-    }
-}
+type Point = (usize, usize);
 
 fn read_lines() -> Vec<String> {
     let path = args().nth(1).expect("No args given");
@@ -38,74 +10,98 @@ fn read_lines() -> Vec<String> {
     file.lines().map(|line| line.to_string()).collect()
 }
 
-fn find_zeros(map: &Vec<Vec<u32>>) -> Vec<Point> {
+fn find_zeros(map: &Vec<Vec<usize>>) -> Vec<Point> {
     let mut zeros = Vec::new();
     for (i, row) in map.iter().enumerate() {
         for (j, cell) in row.iter().enumerate() {
             if *cell == 0 {
-                zeros.push(Point { x: i as i32, y: j as i32 });
+                zeros.push((i, j));
             }
         }
     }
     zeros
 }
 
-const DIRECTIONS: [Point; 4] = [
-    Point { x: 1, y: 0 },
-    Point { x: 0, y: 1 },
-    Point { x: -1, y: 0 },
-    Point { x: 0, y: -1 },
+const DIRECTIONS: [(isize, isize); 4] = [
+    (1, 0),
+    (0, 1),
+    (-1, 0),
+    (0, -1),
 ];
 
-fn trailheads(map: &Vec<Vec<u32>>, curr: Point) -> HashSet<Point> {
-    let mut set: HashSet<Point>= HashSet::new();
-    if map[curr.x as usize][curr.y as usize] == 9 {
-        set.insert(curr);        
+fn trailheads_score(map: &Vec<Vec<usize>>, curr: Point) -> HashSet<Point> {
+    let mut set: HashSet<Point> = HashSet::new();
+    if map[curr.0][curr.1] == 9 {
+        set.insert(curr);
         return set;
     }
-
-    //println!("{}, {} => {}", curr.x, curr.y, map[curr.x as usize][curr.y as usize]);
 
     DIRECTIONS
         .iter()
         .filter_map(|dir| {
-            let new = *dir+curr;
-            let curr = map[curr.x as usize][curr.y as usize];
+            let new = (
+                (curr.0 as isize + dir.0) as usize,
+                (curr.1 as isize + dir.1) as usize,
+            );
+            let curr_val = map[curr.0][curr.1];
             map
-                .get(new.x as usize)
-                .and_then(|row| row
-                    .get(new.y as usize)
-                ).filter(|&&cell| cell == curr+1)
-                .map(|_| trailheads(map, new))
+                .get(new.0)
+                .and_then(|row| row.get(new.1))
+                .filter(|&&cell| cell == curr_val + 1)
+                .map(|_| trailheads_score(map, new))
         })
         .for_each(|res| {
-            res.iter().for_each(|pos| {
-                set.insert(*pos);
+            res.iter().for_each(|&pos| {
+                set.insert(pos);
             });
         });
 
     set
-    
 }
 
-fn part1(map: &Vec<Vec<u32>>) {
-    let zeros = find_zeros(map);
-    let sum: u32 = zeros
+fn trailheads_rating(map: &Vec<Vec<usize>>, curr: Point) -> usize {
+    if map[curr.0][curr.1] == 9 {
+        return 1;
+    }
+
+    DIRECTIONS
         .iter()
-        .map(|&pos| trailheads(map, pos).len() as u32)
-        .sum();
-    println!("{sum}");
+        .filter_map(|dir| {
+            let new = (
+                (curr.0 as isize + dir.0) as usize,
+                (curr.1 as isize + dir.1) as usize,
+            );
+            let curr_val = map[curr.0][curr.1];
+            map
+                .get(new.0)
+                .and_then(|row| row.get(new.1))
+                .filter(|&&cell| cell == curr_val + 1)
+                .map(|_| trailheads_rating(map, new))
+        })
+        .sum()
 }
 
 fn main() {
     let file = read_lines();
-    let map: Vec<Vec<u32>> = file
+    let map: Vec<Vec<usize>> = file
         .iter()
         .map(|line| line
             .chars()
-            .map(|c| c.to_digit(10).unwrap())
+            .map(|c| c.to_digit(10).unwrap() as usize)
             .collect()
         )
         .collect();
-    part1(&map)
+
+    let zeros = find_zeros(&map);
+    let part1: usize = zeros
+        .iter()
+        .map(|&pos| trailheads_score(&map, pos).len())
+        .sum();
+    println!("{part1}");
+    
+    let part2: usize = zeros
+        .iter()
+        .map(|&pos| trailheads_rating(&map, pos))
+        .sum();
+    println!("{part2}");
 }
