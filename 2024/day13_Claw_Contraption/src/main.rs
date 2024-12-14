@@ -36,6 +36,30 @@ fn part1(file: &Vec<Vec<i32>>) {
     println!("{}", sum);
 }
 
+fn part2(file: &Vec<Vec<i32>>) {
+    let mut sum = 0;
+    for i in (0..file.len()).step_by(3) {
+        let (ax, ay) = (file[i][0] as i64, file[i][1] as i64);
+        let (bx, by) = (file[i+1][0] as i64, file[i+1][1] as i64);
+        let (cx, cy) = ((file[i+2][0] as i64) + 10000000000000, (file[i+2][1] as i64) + 10000000000000);
+
+        let num = cx * by - bx * cy;
+        let den = ax * by - bx * ay;
+        if num % den != 0 {
+            continue;
+        }
+        let a = num / den;
+        if (cx - ax * a) % bx != 0 {
+            continue;
+        }
+        let b = (cx - ax * a) / bx;
+
+        sum += 3 * a + b;
+    }
+    println!("{}", sum);
+}
+
+
 fn main() {
     let file: Vec<Vec<i32>> = read_lines()
         .iter()
@@ -53,4 +77,5 @@ fn main() {
     
     
     part1(&file);
+    part2(&file);
 }
